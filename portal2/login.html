@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
+    <style>
+
+        body {
+            background-image: url("img/fundo.png");
+            background-repeat: no-repeat, no-repeat;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            z-index: 1; /* Garante que o conteúdo fique sobre as imagens */
+            background-color: rgba(255, 255, 255, 0.8); /* Fundo semitransparente opcional para o container */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+       
+         .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-color: black;
+        }
+
+        .profile-circle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 100px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .dropdown-content ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-content li {
+            padding: 2px 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-content li:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Login</h2>
+        <div class="auth-container">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" name="senha" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Entrar</button>
+                </div>
+                <div class="form-group">
+                    <p>Ainda não tem uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+                </div>
+            </form>
+
+            <div id="profileCircle" class="profile-circle" style="display: none;">
+                <img src="default-profile.png" alt="Perfil" class="profile-img">
+                <div class="dropdown-content">
+                    <ul>
+                        <li><a href="#">Ver Perfil</a></li>
+                        <li><a href="#" id="logoutBtn">Sair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulando um banco de dados de usuários
+        let usuarios = [
+            { email: 'joao@gmail.com', senha: '123456', nome: 'João', imagem: 'perfil-joao.png' },
+            { email: 'maria@gmail.com', senha: 'senha123', nome: 'Maria', imagem: 'perfil-maria.png' }
+        ];
+
+        // Obtém os usuários cadastrados no LocalStorage
+        const usuariosCadastrados = JSON.parse(localStorage.getItem('usuarios')) || [];
+
+        // Adiciona os usuários cadastrados ao array de usuários
+        usuarios = usuarios.concat(usuariosCadastrados);
+
+        // Função para simular o login
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+
+            // Verifica se o usuário existe no banco de dados simulado
+            const usuario = usuarios.find(user => user.email === email && user.senha === senha);
+
+            if (usuario) {
+                alert(`Bem-vindo, ${usuario.nome}!`);
+
+                // Esconde o formulário de login
+                document.getElementById('loginForm').style.display = 'none';
+
+                // Mostra o círculo de perfil
+                const profileCircle = document.getElementById('profileCircle');
+                profileCircle.style.display = 'flex';
+
+                // Atualiza a imagem do perfil
+                const profileImg = document.querySelector('.profile-img');
+                profileImg.src = usuario.imagem || 'default-profile.png'; // Imagem padrão caso não exista
+
+                // Armazena o usuário logado no sessionStorage
+                sessionStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+
+                // Redireciona para o portal após 2 segundos
+                setTimeout(() => {
+                    window.location.href = "portal2.html"; // Redireciona para a página do portal
+                }, 3000);
+            } else {
+                alert('Email ou senha incorretos. Tente novamente.');
+            }
+        });
+
+        // Exibe ou esconde o menu dropdown ao clicar no círculo de perfil
+        const profileCircle = document.getElementById('profileCircle');
+        profileCircle.addEventListener('click', function () {
+            const dropdown = document.querySelector('.dropdown-content');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Função de logout
+        document.getElementById('logoutBtn').addEventListener('click', function () {
+            sessionStorage.removeItem('usuarioLogado');
+            alert('Você foi desconectado.');
+            window.location.href = "login.html"; // Redireciona para a página de login
+        });
+    </script>
+</body>
+</html>
