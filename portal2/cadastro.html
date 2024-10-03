@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastramento</title>
+    <link rel="stylesheet" href="login.css">
+
+    <style>
+       body {
+            background-image: url("img/fundo.png");
+            background-repeat: no-repeat, no-repeat;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            z-index: 1; /* Garante que o conteúdo fique sobre as imagens */
+            background-color: rgba(255, 255, 255, 0.8); /* Fundo semitransparente opcional para o container */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Cadastro de Cliente</h2>
+
+        <form id="cadastroForm" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmSenha">Confirme Sua Senha:</label>
+                <input type="password" id="confirmSenha" name="confirmSenha" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contato">Contato:</label>
+                <input type="tel" id="contato" name="contato" required>
+            </div>
+
+            <!-- Campo: Foto de Perfil -->
+            <div class="form-group">
+                <label for="foto">Foto de Perfil:</label>
+                <input type="file" id="foto" name="foto" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Registrar</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        // Função para aplicar máscara ao campo de telefone
+        function mascaraTelefone(telefone) {
+            telefone = telefone.replace(/\D/g, "");
+            telefone = telefone.replace(/^(\d{2})(\d)/g, "($1) $2");
+            telefone = telefone.replace(/(\d)(\d{4})$/, "$1-$2");
+            return telefone;
+        }
+
+        // Aplica a máscara enquanto o usuário digita
+        document.getElementById('contato').addEventListener('input', function (e) {
+            e.target.value = mascaraTelefone(e.target.value);
+        });
+
+        document.getElementById('cadastroForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const confirmSenha = document.getElementById('confirmSenha').value;
+
+            // Verifica se as senhas coincidem
+            if (senha !== confirmSenha) {
+                alert("As senhas não coincidem!");
+                return;
+            }
+
+            // Cria um objeto com os dados do novo usuário
+            const novoUsuario = { nome, email, senha, imagem: null };
+
+            // Obtém o arquivo da foto de perfil
+            const fotoInput = document.getElementById('foto');
+            if (fotoInput.files.length > 0) {
+                const file = fotoInput.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    novoUsuario.imagem = e.target.result; // Converte a imagem para base64
+
+                    // Obtém os usuários existentes do LocalStorage ou cria um array vazio
+                    let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+                    
+                    // Adiciona o novo usuário ao array
+                    usuarios.push(novoUsuario);
+                    
+                    // Salva o array atualizado no LocalStorage
+                    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+                    alert('Cadastro realizado com sucesso! Redirecionando para a página de login...');
+                    window.location.href = 'login.html'; // Redireciona para a página de login
+                };
+
+                reader.readAsDataURL(file); // Lê o arquivo como URL de dados (base64)
+            } else {
+                // Caso não tenha imagem, ainda registra o usuário
+                let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
+                usuarios.push(novoUsuario);
+                localStorage.setItem('usuarios', JSON.stringify(usuarios));
+
+                alert('Cadastro realizado com sucesso! Redirecionando para a página de login...');
+                window.location.href = 'login.html'; // Redireciona para a página de login
+            }
+        });
+    </script>
+
+</body>
+</html>
