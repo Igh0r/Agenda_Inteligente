@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #007bff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            color: white;
+        }
+        .header button {
+            background-color: white;
+            color: #007bff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .header button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        .content {
+            padding: 20px;
+        }
+        .consulta {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .consulta button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .consulta button:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <button onclick="voltarAgendamento()">Voltar para Agendamento</button>
+    <button onclick="voltarPortal()">Voltar para Portal</button>
+</div>
+
+<div class="content">
+    <h1>Suas Consultas</h1>
+    <div id="listaConsultas"></div>
+</div>
+
+<!-- Modal para cancelamento -->
+<div id="modalCancelamento" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+    <div style="background:white; padding:20px; margin:100px auto; width:300px; text-align:center; border-radius:5px;">
+        <h3>Cancelar Consulta</h3>
+        <textarea id="motivoCancelamento" placeholder="Motivo do cancelamento" style="width:100%; height:100px;"></textarea>
+        <button onclick="confirmarCancelamento()">Confirmar</button>
+        <button onclick="fecharModal()">Fechar</button>
+    </div>
+</div>
+
+<script>
+// Carrega as consultas
+window.onload = function() {
+    const consultas = JSON.parse(localStorage.getItem('agendamentos')) || [];
+    const listaConsultasDiv = document.getElementById('listaConsultas');
+
+    if (consultas.length === 0) {
+        listaConsultasDiv.innerHTML = '<p>Você não tem consultas agendadas.</p>';
+    } else {
+        consultas.forEach((consulta, index) => {
+            const consultaDiv = document.createElement('div');
+            consultaDiv.classList.add('consulta');
+            consultaDiv.innerHTML = `<p><strong>Procedimento:</strong> ${consulta.procedimento}<br>
+                                     <strong>Dia:</strong> ${consulta.dia}<br>
+                                     <strong>Médico:</strong> ${consulta.medico}<br>
+                                     <strong>Horário:</strong> ${consulta.horario}</p>
+                                     <button onclick="abrirModal(${index})">Cancelar Consulta</button>`;
+            listaConsultasDiv.appendChild(consultaDiv);
+        });
+    }
+};
+
+// Funções de navegação
+function voltarAgendamento() {
+    window.location.href = 'telaAgendamento.html';
+}
+
+function voltarPortal() {
+    window.location.href = 'Portal2.html';
+}
+
+// Funções de cancelamento
+let consultaSelecionada;
+
+function abrirModal(index) {
+    consultaSelecionada = index;
+    document.getElementById('modalCancelamento').style.display = 'block';
+}
+
+function fecharModal() {
+    document.getElementById('modalCancelamento').style.display = 'none';
+}
+
+// Função de cancelamento com salvamento do motivo
+function confirmarCancelamento() {
+    const motivo = document.getElementById('motivoCancelamento').value;
+
+    if (!motivo) {
+        alert('Por favor, informe o motivo do cancelamento.');
+        return;
+    }
+
+    const agendamentos = JSON.parse(localStorage.getItem('agendamentos'));
+    const consulta = agendamentos[consultaSelecionada];
+
+    // Exibe confirmação ao usuário
+    if (confirm(`Você tem certeza que deseja cancelar a consulta de "${consulta.procedimento}" no dia ${consulta.dia}? Não será possível remarcar nessa data.`)) {
+        agendamentos.splice(consultaSelecionada, 1); // Remove a consulta
+        localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+
+        // Salva o motivo do cancelamento e a data/procedimento
+        const cancelamentos = JSON.parse(localStorage.getItem('cancelamentos')) || [];
+        cancelamentos.push({
+            dia: consulta.dia,
+            procedimento: consulta.procedimento,
+            motivo: motivo
+        });
+        localStorage.setItem('cancelamentos', JSON.stringify(cancelamentos));
+
+        alert('Consulta cancelada com sucesso!');
+        window.location.reload(); // Recarrega a página para atualizar a lista
+    }
+}
+
+</script>
+</body>
+</html>
