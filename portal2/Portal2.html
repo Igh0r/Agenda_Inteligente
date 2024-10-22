@@ -232,7 +232,7 @@
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="#">Dados Pessoais</a>
         <a href="#">Configurações</a>
-        <a href="#">Agendamentos</a>
+        <a href="telaAgendamento.html" id="agendamento-link" style="display: none;">Agendamento</a>
         <a href="#" id="logout">Sair</a>
     </div>
 
@@ -301,6 +301,7 @@
                 document.getElementById('login-link').style.display = 'none';
                 // Exibe o perfil do usuário
                 userProfile.style.display = 'flex';
+                document.getElementById('agendamento-link').style.display = 'block';
                 userName.textContent = usuarioLogado.nome; // Exibe o nome do usuário
                 profileImage.src = usuarioLogado.imagem || 'img/profile.jpg'; // Define imagem padrão caso não exista
             }
@@ -331,6 +332,11 @@
 
         // Chama a função para verificar o login ao carregar a página
         window.onload = checkLogin;
+
+        // Função para obter o usuário logado
+        function getUsuarioLogado() {
+        return JSON.parse(sessionStorage.getItem('usuarioLogado')) || null;
+}
     </script>
 </body>
 </html>
